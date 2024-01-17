@@ -1,18 +1,23 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{app::AppExit, prelude::*, utils::HashMap};
 
-use crate::{application::AppState, asteroid::Asteroid, schedule::InGameSet, spaceship::Spaceship};
+use crate::{
+    application::AppState,
+    asteroid::Asteroid,
+    schedule::InGameSet,
+    spaceship::{AlreadyFired, Health, Missile, Spaceship, SpaceshipShield},
+};
 
 #[derive(Component, Debug)]
 pub struct Collider {
     pub radius: f32,
-    pub colliditing_entities: Vec<Entity>,
+    pub colliding_entities: Vec<Entity>,
 }
 
 impl Collider {
     pub fn new(radius: f32) -> Self {
         Self {
             radius,
-            colliditing_entities: vec![],
+            colliding_entities: vec![],
         }
     }
 }
@@ -37,25 +42,68 @@ fn collision_detection(mut query: Query<(Entity, &GlobalTransform, &mut Collider
     }
 
     for (entity, _, mut collider) in query.iter_mut() {
-        collider.colliditing_entities.clear();
+        collider.colliding_entities.clear();
 
         if let Some(collisions) = colliding_entities.get(&entity) {
-            collider.colliditing_entities.extend(collisions);
+            collider.colliding_entities.extend(collisions);
         }
     }
 }
 
-fn handle_collisions<T: Component>(
+fn handle_spaceship_collision(
     mut commands: Commands,
-    query: Query<(Entity, &Collider), With<T>>,
+    mut query: Query<(Entity, &mut Health, &Collider, Option<&SpaceshipShield>), With<Spaceship>>,
+    mut exit: EventWriter<AppExit>,
+    asteroids: Query<Entity, With<Asteroid>>,
 ) {
-    for (entity, collider) in query.iter() {
-        for &collided_entity in collider.colliditing_entities.iter() {
-            if query.get(collided_entity).is_ok() {
-                continue;
-            }
+    let Ok((spaceship_entity, mut spaceship_health, spaceship_collider, maybe_shield)) =
+        query.get_single_mut()
+    else {
+        return;
+    };
 
-            commands.entity(entity).despawn_recursive();
+    for &collided_entity in spaceship_collider.colliding_entities.iter() {
+        let Ok(asteroid) = asteroids.get(collided_entity) else {
+            continue;
+        };
+
+        commands.entity(asteroid).despawn_recursive();
+
+        if maybe_shield.is_some() {
+            commands
+                .entity(spaceship_entity)
+                .remove::<SpaceshipShield>();
+        } else {
+            *spaceship_health -= 1;
+
+            if *spaceship_health < 1 {
+                warn!("Time to die!");
+                exit.send(AppExit);
+            }
+        }
+
+        break;
+    }
+}
+
+fn handle_asteroid_collision(
+    mut commands: Commands,
+    query: Query<(Entity, &Collider), With<Asteroid>>,
+    missiles: Query<Entity, With<Missile>>,
+    spaceship: Query<Entity, With<AlreadyFired>>,
+) {
+    for (asteroid_entity, asteroid_collider) in query.iter() {
+        for &colliding_entity in asteroid_collider.colliding_entities.iter() {
+            let Ok(missile_entity) = missiles.get(colliding_entity) else {
+                continue;
+            };
+
+            commands.entity(missile_entity).despawn_recursive();
+            commands.entity(asteroid_entity).despawn_recursive();
+
+            if let Ok(spaceship_entity) = spaceship.get_single() {
+                commands.entity(spaceship_entity).remove::<AlreadyFired>();
+            }
         }
     }
 }
@@ -72,10 +120,7 @@ impl Plugin for CollisionDetectionPlugin {
         )
         .add_systems(
             Update,
-            (
-                handle_collisions::<Asteroid>,
-                handle_collisions::<Spaceship>,
-            )
+            (handle_spaceship_collision, handle_asteroid_collision)
                 .in_set(InGameSet::DespawnEntities)
                 .run_if(in_state(AppState::InGame)),
         );

@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign, Sub, SubAssign};
+
 use bevy::prelude::*;
 
 use crate::{
@@ -26,7 +28,53 @@ pub struct Spaceship;
 pub struct Missile;
 
 #[derive(Component, Debug)]
-pub struct SpaceshupShield;
+pub struct SpaceshipShield;
+
+#[derive(Component, Debug)]
+pub struct AlreadyFired;
+
+#[derive(Component, Debug)]
+pub struct Health(u32);
+
+impl Add<u32> for Health {
+    type Output = Self;
+
+    fn add(self, rhs: u32) -> Self::Output {
+        Self(self.0 + rhs)
+    }
+}
+
+impl AddAssign<u32> for Health {
+    fn add_assign(&mut self, rhs: u32) {
+        self.0 += rhs;
+    }
+}
+
+impl Sub<u32> for Health {
+    type Output = Self;
+
+    fn sub(self, rhs: u32) -> Self::Output {
+        Self(self.0 - rhs)
+    }
+}
+
+impl SubAssign<u32> for Health {
+    fn sub_assign(&mut self, rhs: u32) {
+        self.0 -= rhs;
+    }
+}
+
+impl PartialEq<u32> for Health {
+    fn eq(&self, other: &u32) -> bool {
+        self.0 == *other
+    }
+}
+
+impl PartialOrd<u32> for Health {
+    fn partial_cmp(&self, other: &u32) -> Option<std::cmp::Ordering> {
+        Some(self.0.cmp(other))
+    }
+}
 
 fn spaceship_movement_controls(
     mut query: Query<(&mut Transform, &mut Velocity), With<Spaceship>>,
@@ -67,7 +115,7 @@ fn spaceship_movement_controls(
 
 fn spaceship_weapon_controls(
     mut commands: Commands,
-    query: Query<&Transform, With<Spaceship>>,
+    query: Query<(Entity, &Transform), (With<Spaceship>, Without<AlreadyFired>)>,
     keyboard_input: Res<Input<KeyCode>>,
     assets: Res<SceneAssets>,
 ) {
@@ -75,9 +123,14 @@ fn spaceship_weapon_controls(
         return;
     }
 
-    let Ok(spaceship_transform) = query.get_single() else {
+    let Ok((spaceship_entity, spaceship_transform)) = query.get_single() else {
         return;
     };
+
+    commands
+        .get_entity(spaceship_entity)
+        .unwrap()
+        .insert(AlreadyFired);
 
     commands.spawn((
         Missile,
@@ -111,7 +164,7 @@ fn spaceship_shield_controls(
     };
 
     if keyboard_input.pressed(KeyCode::Tab) {
-        commands.entity(spaceship).insert(SpaceshupShield);
+        commands.entity(spaceship).insert(SpaceshipShield);
     }
 }
 
@@ -128,6 +181,7 @@ fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
             },
             collider: Collider::new(SPACESHIP_RADIUS),
         },
+        Health(1),
     ));
 }
 
