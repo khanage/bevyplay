@@ -7,16 +7,19 @@ mod camera;
 mod collision_detection;
 mod debug;
 mod despawn;
+mod end_game;
 mod movement;
 mod pausemenu;
 mod schedule;
 mod spaceship;
+mod ui;
 
 fn main() {
-    App::new()
+    let mut application = App::new();
+
+    application
         .add_plugins(application::AppPlugin)
         .add_plugins(pausemenu::PauseMenuPlugin)
-        .add_plugins(debug::DebugPlugin)
         .add_plugins(movement::MovementPlugin)
         .add_plugins(spaceship::SpaceshipPlugin)
         .add_plugins(camera::CameraPlugin)
@@ -25,5 +28,12 @@ fn main() {
         .add_plugins(collision_detection::CollisionDetectionPlugin)
         .add_plugins(despawn::DespawnPlugin)
         .add_plugins(schedule::SchedulePlugin)
-        .run();
+        .add_plugins(ui::UiPlugin)
+        .add_plugins(end_game::EndGamePlugin);
+
+    if cfg!(feature = "diagnostics") {
+        application.add_plugins(debug::DebugPlugin);
+    }
+
+    application.run();
 }

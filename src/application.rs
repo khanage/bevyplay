@@ -1,4 +1,4 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::{
     bevy_egui::{EguiContexts, EguiPlugin},
     egui,
@@ -13,13 +13,10 @@ pub enum AppState {
     MainMenu,
     InGame,
     Paused,
+    EndGame,
 }
 
-fn main_menu(
-    mut contexts: EguiContexts,
-    mut app_state: ResMut<NextState<AppState>>,
-    mut exit: EventWriter<AppExit>,
-) {
+fn main_menu(mut contexts: EguiContexts, mut app_state: ResMut<NextState<AppState>>) {
     egui::SidePanel::left("Side panel")
         .default_width(200.0)
         .show(contexts.ctx_mut(), |ui| {
@@ -36,7 +33,7 @@ fn main_menu(
             }
 
             if ui.button("Quit").clicked() {
-                exit.send(AppExit);
+                app_state.set(AppState::EndGame);
             }
         });
 }

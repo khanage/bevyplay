@@ -1,14 +1,15 @@
-use std::ops::{Add, AddAssign, Sub, SubAssign};
+pub mod health;
 
-use bevy::prelude::*;
-
+use self::health::Health;
 use crate::{
     application::AppState,
     asset_loader::SceneAssets,
     collision_detection::Collider,
+    end_game::DespawnAtEndgame,
     movement::{Acceleration, MovingObjectBundle, Velocity},
     schedule::InGameSet,
 };
+use bevy::prelude::*;
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0., 0., -20.);
 
@@ -21,6 +22,8 @@ const MISSILE_RADIUS: f32 = 1.0;
 const MISSILE_SPEED: f32 = 10.0;
 const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.5;
 
+pub const STARTING_HEALTH: u32 = 3;
+
 #[derive(Component, Debug)]
 pub struct Spaceship;
 
@@ -31,50 +34,10 @@ pub struct Missile;
 pub struct SpaceshipShield;
 
 #[derive(Component, Debug)]
-pub struct AlreadyFired;
+pub struct ShieldDisplay;
 
 #[derive(Component, Debug)]
-pub struct Health(u32);
-
-impl Add<u32> for Health {
-    type Output = Self;
-
-    fn add(self, rhs: u32) -> Self::Output {
-        Self(self.0 + rhs)
-    }
-}
-
-impl AddAssign<u32> for Health {
-    fn add_assign(&mut self, rhs: u32) {
-        self.0 += rhs;
-    }
-}
-
-impl Sub<u32> for Health {
-    type Output = Self;
-
-    fn sub(self, rhs: u32) -> Self::Output {
-        Self(self.0 - rhs)
-    }
-}
-
-impl SubAssign<u32> for Health {
-    fn sub_assign(&mut self, rhs: u32) {
-        self.0 -= rhs;
-    }
-}
-
-impl PartialEq<u32> for Health {
-    fn eq(&self, other: &u32) -> bool {
-        self.0 == *other
-    }
-}
-
-impl PartialOrd<u32> for Health {
-    fn partial_cmp(&self, other: &u32) -> Option<std::cmp::Ordering> {
-        Some(self.0.cmp(other))
-    }
-}
+pub struct AlreadyFired;
 
 fn spaceship_movement_controls(
     mut query: Query<(&mut Transform, &mut Velocity), With<Spaceship>>,
@@ -151,20 +114,56 @@ fn spaceship_weapon_controls(
             source: assets.explosion.clone(),
             ..default()
         },
+        DespawnAtEndgame,
     ));
 }
 
 fn spaceship_shield_controls(
     mut commands: Commands,
-    query: Query<Entity, With<Spaceship>>,
+    query: Query<Entity, (With<Spaceship>, Without<SpaceshipShield>)>,
     keyboard_input: Res<Input<KeyCode>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let Ok(spaceship) = query.get_single() else {
         return;
     };
 
     if keyboard_input.pressed(KeyCode::Tab) {
-        commands.entity(spaceship).insert(SpaceshipShield);
+        info!("Spawning shield");
+
+        let mesh = meshes.add(
+            Mesh::try_from(shape::Icosphere {
+                radius: 6.1,
+                subdivisions: 7,
+                ..default()
+            })
+            .unwrap(),
+        );
+
+        info!("Mesh created");
+
+        let material = materials.add(StandardMaterial {
+            base_color: Color::BLUE.with_a(0.5),
+            alpha_mode: AlphaMode::Premultiplied,
+            ..default()
+        });
+
+        info!("Material created");
+
+        commands
+            .entity(spaceship)
+            .insert(SpaceshipShield)
+            .with_children(|builder| {
+                builder.spawn((
+                    PbrBundle {
+                        mesh,
+                        material,
+                        ..default()
+                    },
+                    ShieldDisplay,
+                ));
+            });
     }
 }
 
@@ -181,7 +180,8 @@ fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
             },
             collider: Collider::new(SPACESHIP_RADIUS),
         },
-        Health(1),
+        Health::default(),
+        DespawnAtEndgame,
     ));
 }
 

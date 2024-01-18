@@ -6,6 +6,7 @@ use crate::{
     application::AppState,
     asset_loader::SceneAssets,
     collision_detection::Collider,
+    end_game::DespawnAtEndgame,
     movement::{Acceleration, MovingObjectBundle, Velocity},
     schedule::InGameSet,
 };
@@ -66,6 +67,7 @@ fn spawn_asteroid(
             collider: Collider::new(ASTEROID_RADIUS),
         },
         Asteroid,
+        DespawnAtEndgame,
     ));
 }
 

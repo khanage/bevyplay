@@ -1,10 +1,10 @@
-use bevy::{app::AppExit, prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     application::AppState,
     asteroid::Asteroid,
     schedule::InGameSet,
-    spaceship::{AlreadyFired, Health, Missile, Spaceship, SpaceshipShield},
+    spaceship::{health::Health, AlreadyFired, Missile, ShieldDisplay, Spaceship, SpaceshipShield},
 };
 
 #[derive(Component, Debug)]
@@ -52,12 +52,16 @@ fn collision_detection(mut query: Query<(Entity, &GlobalTransform, &mut Collider
 
 fn handle_spaceship_collision(
     mut commands: Commands,
-    mut query: Query<(Entity, &mut Health, &Collider, Option<&SpaceshipShield>), With<Spaceship>>,
-    mut exit: EventWriter<AppExit>,
+    mut spaceship_query: Query<
+        (Entity, &mut Health, &Collider, Option<&SpaceshipShield>),
+        With<Spaceship>,
+    >,
+    mut app_state: ResMut<NextState<AppState>>,
+    spaceship_shield_query: Query<Entity, With<ShieldDisplay>>,
     asteroids: Query<Entity, With<Asteroid>>,
 ) {
     let Ok((spaceship_entity, mut spaceship_health, spaceship_collider, maybe_shield)) =
-        query.get_single_mut()
+        spaceship_query.get_single_mut()
     else {
         return;
     };
@@ -70,15 +74,24 @@ fn handle_spaceship_collision(
         commands.entity(asteroid).despawn_recursive();
 
         if maybe_shield.is_some() {
+            info!("Despawning shield");
+
             commands
                 .entity(spaceship_entity)
                 .remove::<SpaceshipShield>();
+
+            let Ok(shield) = spaceship_shield_query.get_single() else {
+                error!("No shield found");
+                break;
+            };
+
+            commands.entity(shield).despawn_recursive();
         } else {
             *spaceship_health -= 1;
 
             if *spaceship_health < 1 {
                 warn!("Time to die!");
-                exit.send(AppExit);
+                app_state.set(AppState::EndGame);
             }
         }
 
