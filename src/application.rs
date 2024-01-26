@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_inspector_egui::{
     bevy_egui::{EguiContexts, EguiPlugin},
     egui,
@@ -47,14 +47,21 @@ impl Plugin for AppPlugin {
                 color: Color::default(),
                 brightness: 0.75,
             })
-            .add_plugins(DefaultPlugins.set(WindowPlugin {
-                primary_window: Some(Window {
-                    fit_canvas_to_parent: true,
-                    prevent_default_event_handling: false,
-                    ..default()
-                }),
-                ..default()
-            }))
+            .add_plugins(
+                DefaultPlugins
+                    .set(WindowPlugin {
+                        primary_window: Some(Window {
+                            fit_canvas_to_parent: true,
+                            prevent_default_event_handling: false,
+                            ..default()
+                        }),
+                        ..default()
+                    })
+                    .set(LogPlugin {
+                        filter: "wgpu=error,bevy_render=info,bevy_ecs=info,debug".into(),
+                        level: bevy::log::Level::DEBUG,
+                    }),
+            )
             .add_plugins(EguiPlugin)
             .add_systems(
                 Update,

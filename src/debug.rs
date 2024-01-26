@@ -1,10 +1,11 @@
-use bevy::prelude::*;
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(WorldInspectorPlugin::new());
+        app.add_plugins(WorldInspectorPlugin::new())
+            .add_plugins(FrameTimeDiagnosticsPlugin::default());
     }
 }

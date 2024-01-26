@@ -125,46 +125,52 @@ fn spaceship_shield_controls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    if !keyboard_input.pressed(KeyCode::Tab) {
+        return;
+    }
+
     let Ok(spaceship) = query.get_single() else {
         return;
     };
 
-    if keyboard_input.pressed(KeyCode::Tab) {
-        info!("Spawning shield");
+    info!("Spawning shield");
 
-        let mesh = meshes.add(
-            Mesh::try_from(shape::Icosphere {
-                radius: 6.1,
-                subdivisions: 7,
-                ..default()
-            })
-            .unwrap(),
-        );
-
-        info!("Mesh created");
-
-        let material = materials.add(StandardMaterial {
-            base_color: Color::BLUE.with_a(0.5),
-            alpha_mode: AlphaMode::Premultiplied,
+    let mesh = meshes.add(
+        Mesh::try_from(shape::Icosphere {
+            radius: 6.1,
+            subdivisions: 7,
             ..default()
+        })
+        .unwrap(),
+    );
+
+    info!("Mesh created");
+
+    let material = materials.add(StandardMaterial {
+        base_color: Color::BLUE.with_a(0.5),
+        alpha_mode: AlphaMode::Premultiplied,
+        ..default()
+    });
+
+    info!("Material created");
+
+    commands
+        .entity(spaceship)
+        .insert(SpaceshipShield)
+        .with_children(|builder| {
+            info!("Spawning bundle");
+            builder.spawn((
+                PbrBundle {
+                    mesh,
+                    material,
+                    ..default()
+                },
+                ShieldDisplay,
+            ));
+            info!("Bundle spawned");
         });
 
-        info!("Material created");
-
-        commands
-            .entity(spaceship)
-            .insert(SpaceshipShield)
-            .with_children(|builder| {
-                builder.spawn((
-                    PbrBundle {
-                        mesh,
-                        material,
-                        ..default()
-                    },
-                    ShieldDisplay,
-                ));
-            });
-    }
+    info!("Finished shield controls");
 }
 
 fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
