@@ -1,9 +1,10 @@
 [env]
-PKG_CONFIG_PATH = "/homebrew/alsa-lib/1.2.11/lib/pkgconfig"
 RUST_BACKTRACE = "1"
+PKG_CONFIG_PATH_x86_64-unknown-linux-gnu = "/homebrew/alsa-lib/1.2.11/lib/pkgconfig"
 
-# [build]
-# target = "wasm32-unknown-unknown"
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 [target.wasm32-unknown-unknown]
 runner = "wasm-server-runner"
@@ -15,3 +16,11 @@ rustflags = [
   "-Lnative=/home/khan/.xwin/sdk/lib/um/x86_64",
   "-Lnative=/home/khan/.xwin/sdk/lib/ucrt/x86_64",
 ]
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+incremental = false
+debug = false
+

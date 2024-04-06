@@ -41,7 +41,7 @@ pub struct AlreadyFired;
 
 fn spaceship_movement_controls(
     mut query: Query<(&mut Transform, &mut Velocity), With<Spaceship>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     let Ok((mut transform, mut velocity)) = query.get_single_mut() else {
@@ -52,21 +52,21 @@ fn spaceship_movement_controls(
     let mut roll = 0.0;
     let mut movement = 0.0;
 
-    if keyboard_input.pressed(KeyCode::S) {
+    if keyboard_input.pressed(KeyCode::KeyS) {
         movement = -SPACESHIP_SPEED;
-    } else if keyboard_input.pressed(KeyCode::W) {
+    } else if keyboard_input.pressed(KeyCode::KeyW) {
         movement = SPACESHIP_SPEED;
     }
 
-    if keyboard_input.pressed(KeyCode::D) {
+    if keyboard_input.pressed(KeyCode::KeyD) {
         rotation = -SPACESHIP_ROTATION * time.delta_seconds();
-    } else if keyboard_input.pressed(KeyCode::A) {
+    } else if keyboard_input.pressed(KeyCode::KeyA) {
         rotation = SPACESHIP_ROTATION * time.delta_seconds();
     }
 
-    if keyboard_input.pressed(KeyCode::Q) {
+    if keyboard_input.pressed(KeyCode::KeyQ) {
         roll = -SPACESHIP_ROLL_SPEED * time.delta_seconds();
-    } else if keyboard_input.pressed(KeyCode::E) {
+    } else if keyboard_input.pressed(KeyCode::KeyE) {
         roll = SPACESHIP_ROLL_SPEED * time.delta_seconds();
     }
 
@@ -79,7 +79,7 @@ fn spaceship_movement_controls(
 fn spaceship_weapon_controls(
     mut commands: Commands,
     query: Query<(Entity, &Transform), (With<Spaceship>, Without<AlreadyFired>)>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     assets: Res<SceneAssets>,
 ) {
     if !keyboard_input.just_pressed(KeyCode::Space) {
@@ -121,7 +121,7 @@ fn spaceship_weapon_controls(
 fn spaceship_shield_controls(
     mut commands: Commands,
     query: Query<Entity, (With<Spaceship>, Without<SpaceshipShield>)>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {

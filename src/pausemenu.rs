@@ -3,7 +3,10 @@ use bevy_inspector_egui::{bevy_egui::EguiContexts, egui};
 
 use crate::{application::AppState, schedule::InGameSet};
 
-fn pause_game(mut app_state: ResMut<NextState<AppState>>, keyboad_input: Res<Input<KeyCode>>) {
+fn pause_game(
+    mut app_state: ResMut<NextState<AppState>>,
+    keyboad_input: Res<ButtonInput<KeyCode>>,
+) {
     if keyboad_input.just_pressed(KeyCode::Escape) {
         app_state.set(AppState::Paused);
     }
@@ -29,7 +32,10 @@ fn pause_menu(
         });
 }
 
-fn unpause_game(mut app_state: ResMut<NextState<AppState>>, keyboad_input: Res<Input<KeyCode>>) {
+fn unpause_game(
+    mut app_state: ResMut<NextState<AppState>>,
+    keyboad_input: Res<ButtonInput<KeyCode>>,
+) {
     if keyboad_input.just_pressed(KeyCode::Escape) {
         app_state.set(AppState::InGame);
     }

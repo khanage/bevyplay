@@ -51,7 +51,6 @@ impl Plugin for AppPlugin {
                 DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
-                            fit_canvas_to_parent: true,
                             prevent_default_event_handling: false,
                             ..default()
                         }),
@@ -60,6 +59,7 @@ impl Plugin for AppPlugin {
                     .set(LogPlugin {
                         filter: "wgpu=error,bevy_render=info,bevy_ecs=info,debug".into(),
                         level: bevy::log::Level::DEBUG,
+                        ..default()
                     }),
             )
             .add_plugins(EguiPlugin)
@@ -69,6 +69,6 @@ impl Plugin for AppPlugin {
                     .in_set(InGameSet::EntityUpdates)
                     .run_if(in_state(AppState::MainMenu)),
             )
-            .add_state::<AppState>();
+            .init_state::<AppState>();
     }
 }
