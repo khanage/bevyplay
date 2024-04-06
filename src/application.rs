@@ -44,8 +44,8 @@ impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(Color::rgb(0.1, 0.0, 0.15)))
             .insert_resource(AmbientLight {
-                color: Color::default(),
-                brightness: 0.75,
+                color: Color::WHITE,
+                brightness: 0.02,
             })
             .add_plugins(
                 DefaultPlugins
@@ -57,8 +57,8 @@ impl Plugin for AppPlugin {
                         ..default()
                     })
                     .set(LogPlugin {
-                        filter: "wgpu=error,bevy_render=info,bevy_ecs=info,debug".into(),
-                        level: bevy::log::Level::DEBUG,
+                        filter: "wgpu=error,bevy_render=info,bevy_ecs=info".into(),
+                        level: bevy::log::Level::INFO,
                         ..default()
                     }),
             )

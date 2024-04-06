@@ -30,7 +30,7 @@ fn main() {
         .add_plugins(schedule::SchedulePlugin)
         .add_plugins(ui::UiPlugin)
         .add_plugins(end_game::EndGamePlugin)
-        .add_plugins(bevy::diagnostic::LogDiagnosticsPlugin::default());
+        .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
 
     if cfg!(feature = "diagnostics") {
         application.add_plugins(debug::DebugPlugin);
