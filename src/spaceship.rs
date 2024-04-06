@@ -82,7 +82,7 @@ fn spaceship_weapon_controls(
     keyboard_input: Res<Input<KeyCode>>,
     assets: Res<SceneAssets>,
 ) {
-    if !keyboard_input.pressed(KeyCode::Space) {
+    if !keyboard_input.just_pressed(KeyCode::Space) {
         return;
     }
 
@@ -125,7 +125,7 @@ fn spaceship_shield_controls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    if !keyboard_input.pressed(KeyCode::Tab) {
+    if !keyboard_input.just_pressed(KeyCode::Tab) {
         return;
     }
 

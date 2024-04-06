@@ -30,17 +30,20 @@ pub struct SpawnTimer {
     timer: Timer,
 }
 
-fn spawn_asteroid(
+fn spawn_asteroid_on_interval(
     mut commands: Commands,
     mut spawn_timer: ResMut<SpawnTimer>,
     time: Res<Time>,
     assets: Res<SceneAssets>,
 ) {
     spawn_timer.timer.tick(time.delta());
-    if !spawn_timer.timer.just_finished() {
-        return;
-    }
 
+    if spawn_timer.timer.just_finished() {
+        spawn_asteroid(&mut commands, &assets);
+    }
+}
+
+fn spawn_asteroid(commands: &mut Commands, assets: &Res<SceneAssets>) {
     let mut rng = rand::thread_rng();
 
     let translation = Vec3::new(
@@ -71,6 +74,12 @@ fn spawn_asteroid(
     ));
 }
 
+fn spawn_initial_asteroids(mut commands: Commands, assets: Res<SceneAssets>) {
+    for _ in 0..5 {
+        spawn_asteroid(&mut commands, &assets);
+    }
+}
+
 fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
     for mut transform in query.iter_mut() {
         transform.rotate_local_z(ROTATION_SPEED * time.delta_seconds());
@@ -85,8 +94,15 @@ impl Plugin for AsteroidPlugin {
             timer: Timer::new(Duration::from_secs_f32(SPAWN_TIMER), TimerMode::Repeating),
         })
         .add_systems(
+            OnTransition {
+                from: AppState::MainMenu,
+                to: AppState::InGame,
+            },
+            spawn_initial_asteroids,
+        )
+        .add_systems(
             Update,
-            (spawn_asteroid, rotate_asteroids)
+            (spawn_asteroid_on_interval, rotate_asteroids)
                 .in_set(InGameSet::EntityUpdates)
                 .run_if(in_state(AppState::InGame)),
         );

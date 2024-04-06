@@ -1,5 +1,5 @@
 [env]
-PKG_CONFIG_PATH = "/homebrew/alsa-lib/1.2.10/lib/pkgconfig"
+PKG_CONFIG_PATH = "/homebrew/alsa-lib/1.2.11/lib/pkgconfig"
 RUST_BACKTRACE = "1"
 
 # [build]
