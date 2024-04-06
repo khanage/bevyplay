@@ -22,7 +22,7 @@ const ACCELERATION_SCALAR: f32 = 1.0;
 const ROTATION_SPEED: f32 = 1.5;
 const ASTEROID_RADIUS: f32 = 1.0;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect)]
 pub struct Asteroid;
 
 #[derive(Resource, Debug)]
@@ -93,6 +93,7 @@ impl Plugin for AsteroidPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::new(Duration::from_secs_f32(SPAWN_TIMER), TimerMode::Repeating),
         })
+        .register_type::<Asteroid>()
         .add_systems(
             OnTransition {
                 from: AppState::MainMenu,

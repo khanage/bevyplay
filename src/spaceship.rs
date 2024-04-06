@@ -1,6 +1,10 @@
 pub mod health;
+pub mod shield;
 
-use self::health::Health;
+use self::{
+    health::Health,
+    shield::{disable_shields, enable_shields, ShieldDisplay, SpaceshipShield},
+};
 use crate::{
     application::AppState,
     asset_loader::SceneAssets,
@@ -10,6 +14,10 @@ use crate::{
     schedule::InGameSet,
 };
 use bevy::prelude::*;
+use bevy_health_bar3d::{
+    configuration::{ColorScheme, ForegroundColor, Percentage},
+    plugin::HealthBarPlugin,
+};
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0., 0., -20.);
 
@@ -24,17 +32,11 @@ const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.5;
 
 pub const STARTING_HEALTH: u32 = 3;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect, Resource)]
 pub struct Spaceship;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect, Resource)]
 pub struct Missile;
-
-#[derive(Component, Debug)]
-pub struct SpaceshipShield;
-
-#[derive(Component, Debug)]
-pub struct ShieldDisplay;
 
 #[derive(Component, Debug)]
 pub struct AlreadyFired;
@@ -117,62 +119,6 @@ fn spaceship_weapon_controls(
         DespawnAtEndgame,
     ));
 }
-
-fn spaceship_shield_controls(
-    mut commands: Commands,
-    query: Query<Entity, (With<Spaceship>, Without<SpaceshipShield>)>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    if !keyboard_input.just_pressed(KeyCode::Tab) {
-        return;
-    }
-
-    let Ok(spaceship) = query.get_single() else {
-        return;
-    };
-
-    info!("Spawning shield");
-
-    let mesh = meshes.add(
-        Mesh::try_from(shape::Icosphere {
-            radius: 6.1,
-            subdivisions: 7,
-            ..default()
-        })
-        .unwrap(),
-    );
-
-    info!("Mesh created");
-
-    let material = materials.add(StandardMaterial {
-        base_color: Color::BLUE.with_a(0.5),
-        alpha_mode: AlphaMode::Premultiplied,
-        ..default()
-    });
-
-    info!("Material created");
-
-    commands
-        .entity(spaceship)
-        .insert(SpaceshipShield)
-        .with_children(|builder| {
-            info!("Spawning bundle");
-            builder.spawn((
-                PbrBundle {
-                    mesh,
-                    material,
-                    ..default()
-                },
-                ShieldDisplay,
-            ));
-            info!("Bundle spawned");
-        });
-
-    info!("Finished shield controls");
-}
-
 fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
     commands.spawn((
         Spaceship,
@@ -195,23 +141,33 @@ pub struct SpaceshipPlugin;
 
 impl Plugin for SpaceshipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnTransition {
-                from: AppState::MainMenu,
-                to: AppState::InGame,
-            },
-            spawn_spaceship,
-        )
-        .add_systems(
-            Update,
-            (
-                spaceship_weapon_controls,
-                spaceship_movement_controls,
-                spaceship_shield_controls,
+        app.add_plugins(HealthBarPlugin::<SpaceshipShield>::default())
+            .insert_resource(
+                ColorScheme::<SpaceshipShield>::new()
+                    .foreground_color(ForegroundColor::Static(Color::BLUE)),
             )
-                .chain()
-                .in_set(InGameSet::UserInput)
-                .run_if(in_state(AppState::InGame)),
-        );
+            .add_systems(
+                OnTransition {
+                    from: AppState::MainMenu,
+                    to: AppState::InGame,
+                },
+                spawn_spaceship,
+            )
+            .add_systems(
+                Update,
+                (
+                    spaceship_weapon_controls,
+                    spaceship_movement_controls,
+                    disable_shields,
+                    enable_shields,
+                )
+                    .chain()
+                    .in_set(InGameSet::UserInput)
+                    .run_if(in_state(AppState::InGame)),
+            )
+            .register_type::<Missile>()
+            .register_type::<Spaceship>()
+            .register_type::<ShieldDisplay>()
+            .register_type::<SpaceshipShield>();
     }
 }

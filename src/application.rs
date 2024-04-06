@@ -42,33 +42,33 @@ pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ClearColor(Color::rgb(0.1, 0.0, 0.15)))
-            .insert_resource(AmbientLight {
-                color: Color::WHITE,
-                brightness: 0.02,
-            })
-            .add_plugins(
-                DefaultPlugins
-                    .set(WindowPlugin {
-                        primary_window: Some(Window {
-                            prevent_default_event_handling: false,
-                            ..default()
-                        }),
-                        ..default()
-                    })
-                    .set(LogPlugin {
-                        filter: "wgpu=error,bevy_render=info,bevy_ecs=info".into(),
-                        level: bevy::log::Level::INFO,
+        app.add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        prevent_default_event_handling: false,
                         ..default()
                     }),
-            )
-            .add_plugins(EguiPlugin)
-            .add_systems(
-                Update,
-                main_menu
-                    .in_set(InGameSet::EntityUpdates)
-                    .run_if(in_state(AppState::MainMenu)),
-            )
-            .init_state::<AppState>();
+                    ..default()
+                })
+                .set(LogPlugin {
+                    filter: "wgpu=error,bevy_render=info,bevy_ecs=info".into(),
+                    level: bevy::log::Level::INFO,
+                    ..default()
+                }),
+        )
+        .add_plugins(EguiPlugin)
+        .insert_resource(ClearColor(Color::rgb(0.1, 0.0, 0.15)))
+        .insert_resource(AmbientLight {
+            color: Color::WHITE,
+            brightness: 0.02,
+        })
+        .add_systems(
+            Update,
+            main_menu
+                .in_set(InGameSet::EntityUpdates)
+                .run_if(in_state(AppState::MainMenu)),
+        )
+        .init_state::<AppState>();
     }
 }

@@ -1,6 +1,7 @@
 [env]
 RUST_BACKTRACE = "1"
 PKG_CONFIG_PATH_x86_64-unknown-linux-gnu = "/homebrew/alsa-lib/1.2.11/lib/pkgconfig"
+LD_LIBRARY_PATH = "/homebrew/libxkbcommon/1.7.0/lib"
 
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"

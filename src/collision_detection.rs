@@ -4,7 +4,11 @@ use crate::{
     application::AppState,
     asteroid::Asteroid,
     schedule::InGameSet,
-    spaceship::{health::Health, AlreadyFired, Missile, ShieldDisplay, Spaceship, SpaceshipShield},
+    spaceship::{
+        health::Health,
+        shield::{ShieldDisplay, SpaceshipShield},
+        AlreadyFired, Missile, Spaceship,
+    },
 };
 
 #[derive(Component, Debug)]
