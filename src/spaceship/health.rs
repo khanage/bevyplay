@@ -1,14 +1,25 @@
 use bevy::prelude::*;
+use bevy_health_bar3d::prelude::*;
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 use super::STARTING_HEALTH;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Reflect, Resource)]
 pub struct Health(u32);
 
 impl std::fmt::Display for Health {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!("{}", self.0))
+    }
+}
+
+impl Percentage for Health {
+    fn value(&self) -> f32 {
+        dbg!(if self.0 == 0 {
+            0.
+        } else {
+            1. / (STARTING_HEALTH as f32 / self.0 as f32)
+        })
     }
 }
 

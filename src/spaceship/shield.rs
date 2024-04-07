@@ -54,7 +54,7 @@ pub fn enable_shields(
             timer: Timer::new(Duration::from_millis(SHIELD_TIME), TimerMode::Once),
         })
         .insert(BarSettings::<SpaceshipShield> {
-            offset: 15.,
+            offset: -10.,
             height: BarHeight::Static(1.),
             width: 10.,
             ..default()
@@ -72,7 +72,7 @@ pub fn enable_shields(
         });
 }
 
-pub fn disable_shields(
+pub fn shield_timer(
     mut commands: Commands,
     mut query: Query<(Entity, &mut SpaceshipShield)>,
     spaceship_shield_query: Query<Entity, With<ShieldDisplay>>,
@@ -82,9 +82,7 @@ pub fn disable_shields(
         return;
     };
 
-    shield.timer.tick(time.delta());
-
-    if !shield.timer.finished() {
+    if !shield.timer.tick(time.delta()).finished() {
         return;
     }
 
@@ -93,6 +91,10 @@ pub fn disable_shields(
         return;
     };
 
-    commands.entity(spaceship).remove::<SpaceshipShield>();
+    commands
+        .entity(spaceship)
+        .remove::<SpaceshipShield>()
+        .remove::<BarSettings<SpaceshipShield>>();
+
     commands.entity(shield_display).despawn_recursive();
 }

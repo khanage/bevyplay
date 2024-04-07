@@ -7,7 +7,7 @@ use crate::{
     spaceship::{
         health::Health,
         shield::{ShieldDisplay, SpaceshipShield},
-        AlreadyFired, Missile, Spaceship,
+        Missile, Spaceship,
     },
 };
 
@@ -31,7 +31,7 @@ fn collision_detection(mut query: Query<(Entity, &GlobalTransform, &mut Collider
 
     for (a, transform_a, collider_a) in query.iter() {
         for (b, transform_b, collider_b) in query.iter() {
-            if a == b {
+            if transform_a == transform_b {
                 continue;
             }
 
@@ -107,7 +107,6 @@ fn handle_asteroid_collision(
     mut commands: Commands,
     query: Query<(Entity, &Collider), With<Asteroid>>,
     missiles: Query<Entity, With<Missile>>,
-    spaceship: Query<Entity, With<AlreadyFired>>,
 ) {
     for (asteroid_entity, asteroid_collider) in query.iter() {
         for &colliding_entity in asteroid_collider.colliding_entities.iter() {
@@ -117,10 +116,6 @@ fn handle_asteroid_collision(
 
             commands.entity(missile_entity).despawn_recursive();
             commands.entity(asteroid_entity).despawn_recursive();
-
-            if let Ok(spaceship_entity) = spaceship.get_single() {
-                commands.entity(spaceship_entity).remove::<AlreadyFired>();
-            }
         }
     }
 }
