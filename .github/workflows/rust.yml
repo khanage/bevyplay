@@ -30,8 +30,12 @@ jobs:
         if [[ ! $(which wasm-pack) ]]; then 
           curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
         fi
+
+        if [[ ! $(which wasm-bindgen) ]]; then
+          cargo install wasm-bindgen-cli
+        fi
+        
         rustup target add wasm32-unknown-unknown
-        cargo install wasm-bindgen-cli
     - name: Build
       run: |
         find .
