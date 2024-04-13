@@ -20,6 +20,7 @@ jobs:
       run: |
         curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
         rustup target add wasm32-unknown-unknown
+        cargo install -f wasm-bindgen-cli
     - name: Restore cache
       uses: actions/cache@v3
       with:
