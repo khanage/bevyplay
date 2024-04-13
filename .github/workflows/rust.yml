@@ -36,7 +36,7 @@ jobs:
         ./publish.sh
     - uses: actions/checkout@v4
       with:
-        repository: 'destination_repo_github_username/destination_repo_name'
+        repository: 'khanage/khanage.github.io'
         ref: 'main'
         token: ${{ secrets.PAGES_DEPLOYMENT_TOKEN }}
     - name: Setup git config
