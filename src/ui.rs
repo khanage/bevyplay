@@ -30,5 +30,7 @@ fn update_ui(mut contexts: EguiContexts, health: Query<&Health>) {
         .show(contexts.ctx_mut(), |ui| {
             ui.allocate_space(egui::Vec2::new(1.0, 300.0));
             ui.label(RichText::new(format!("Health: {health}")).color(Color32::RED));
+            ui.label(RichText::new("Shield [F]").color(Color32::BLUE));
+            ui.label(RichText::new("Gun [Space]").color(Color32::GREEN));
         });
 }
