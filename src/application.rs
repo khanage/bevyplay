@@ -25,7 +25,7 @@ fn main_menu(mut contexts: EguiContexts, mut app_state: ResMut<NextState<AppStat
             ui.heading("Welcome to not-pong");
 
             ui.horizontal(|ui| {
-                ui.label("Write someting");
+                ui.label("Testing that deployment works");
             });
 
             if ui.button("New game").clicked() {
