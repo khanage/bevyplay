@@ -38,7 +38,7 @@ jobs:
       with:
         repository: 'destination_repo_github_username/destination_repo_name'
         ref: 'main'
-        token:  ${{ secrets.PAGES_DEPLOYMNET_TOKEN }}
+        token: ${{ secrets.PAGES_DEPLOYMENT_TOKEN }}
     - name: Setup git config
       run: |
         git config --global user.name "GitHub Actions"
