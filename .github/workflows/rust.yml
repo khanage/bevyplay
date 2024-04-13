@@ -11,11 +11,11 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Restore cache
       uses: actions/cache@v4
       with:
@@ -25,6 +25,7 @@ jobs:
           ~/.cargo/registry
           target          
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
     - name: Install dependencies
       run: |
         if [[ ! $(which wasm-pack) ]]; then 
@@ -37,18 +38,36 @@ jobs:
         
         rustup target add wasm32-unknown-unknown
 
-    - uses: actions/checkout@v4
+    - name: Checkout pages repository
+      uses: actions/checkout@v4
       with:
         repository: 'khanage/khanage.github.io'
         ref: 'main'
         token: ${{ secrets.PAGES_DEPLOYMENT_TOKEN }}
         path: khanage.github.io
+
     - name: Setup git config
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "<>"
+
     - name: Build
+      run: cargo build --release --target wasm32-unknown-unknown
+
+    - name: Optimise wasm
       run: |
-        find .
-        ./publish.sh
-        
+        wasm-bindgen --no-typescript --target web \
+          --out-dir khanage.github.io/games/ \
+          --out-name "pong" \
+          ./target/wasm32-unknown-unknown/release/pong.wasm
+
+    - name: Publish
+      run: |
+        COMMIT_MSG="${1:-Pushing changes}"
+
+        pushd khanage.github.io/games
+
+        git commit -am "$COMMIT_MSG"
+        git push
+
+        popd
