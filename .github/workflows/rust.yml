@@ -34,3 +34,12 @@ jobs:
       run: |
         find .
         ./publish.sh
+    - uses: actions/checkout@v4
+      with:
+        repository: 'destination_repo_github_username/destination_repo_name'
+        ref: 'main'
+        token:  ${{ secrets.PAGES_DEPLOYMNET_TOKEN }}
+    - name: Setup git config
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "<>"
