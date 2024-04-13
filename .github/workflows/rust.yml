@@ -36,17 +36,19 @@ jobs:
         fi
         
         rustup target add wasm32-unknown-unknown
-    - name: Build
-      run: |
-        find .
-        ./publish.sh
+
     - uses: actions/checkout@v4
       with:
         repository: 'khanage/khanage.github.io'
         ref: 'main'
         token: ${{ secrets.PAGES_DEPLOYMENT_TOKEN }}
-        path: ../khanage.github.io
+        path: khanage.github.io
     - name: Setup git config
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "<>"
+    - name: Build
+      run: |
+        find .
+        ./publish.sh
+        
