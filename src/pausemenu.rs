@@ -26,6 +26,7 @@ fn pause_menu(
                 app_state.set(AppState::InGame);
             };
 
+            #[cfg(not(target_arch = "wasm"))]
             if ui.button("Quit").clicked() {
                 exit.send(AppExit);
             }

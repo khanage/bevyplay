@@ -32,6 +32,7 @@ fn main_menu(mut contexts: EguiContexts, mut app_state: ResMut<NextState<AppStat
                 app_state.set(AppState::InGame);
             }
 
+            #[cfg(not(target_arch = "wasm"))]
             if ui.button("Quit").clicked() {
                 app_state.set(AppState::EndGame);
             }
