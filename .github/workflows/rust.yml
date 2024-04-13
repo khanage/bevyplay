@@ -1,4 +1,4 @@
-name: Rust
+name: Deploy
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        cargo target add wasm32-unknown-unknown
+        rustup target add wasm32-unknown-unknown
     - name: Restore cache
       uses: actions/cache@v3
       with:
