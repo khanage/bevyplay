@@ -16,11 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: |
-        curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        rustup target add wasm32-unknown-unknown
-        cargo install -f wasm-bindgen-cli
     - name: Restore cache
       uses: actions/cache@v4
       with:
@@ -28,8 +23,15 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/git
           ~/.cargo/registry
-          target
+          target          
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install dependencies
+      run: |
+        if [[ ! $(which wasm-pack) ]]; then 
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        fi
+        rustup target add wasm32-unknown-unknown
+        cargo install wasm-bindgen-cli
     - name: Build
       run: |
         find .
@@ -39,6 +41,7 @@ jobs:
         repository: 'khanage/khanage.github.io'
         ref: 'main'
         token: ${{ secrets.PAGES_DEPLOYMENT_TOKEN }}
+        path: ../khanage.github.io
     - name: Setup git config
       run: |
         git config --global user.name "GitHub Actions"
