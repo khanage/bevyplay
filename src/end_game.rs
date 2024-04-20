@@ -1,4 +1,4 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::egui;
 
 use crate::application::AppState;
@@ -31,7 +31,7 @@ fn despawn_everything(mut commands: Commands, despawners: Query<Entity, With<Des
 fn end_game(
     mut contexts: bevy_inspector_egui::bevy_egui::EguiContexts,
     mut app_state: ResMut<NextState<AppState>>,
-    mut exit: EventWriter<AppExit>,
+    #[cfg(not(target_arch = "wasm32"))] mut exit: EventWriter<bevy::app::AppExit>,
 ) {
     egui::CentralPanel::default().show(contexts.ctx_mut(), |ui| {
         ui.allocate_space(egui::Vec2::new(1.0, 300.0));
@@ -40,8 +40,9 @@ fn end_game(
             app_state.set(AppState::MainMenu);
         };
 
+        #[cfg(not(target_arch = "wasm32"))]
         if ui.button("Quit").clicked() {
-            exit.send(AppExit);
+            exit.send(bevy::app::AppExit);
         }
     });
 }

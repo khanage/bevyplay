@@ -1,4 +1,4 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::{bevy_egui::EguiContexts, egui};
 
 use crate::{application::AppState, schedule::InGameSet};
@@ -15,7 +15,7 @@ fn pause_game(
 fn pause_menu(
     mut contexts: EguiContexts,
     mut app_state: ResMut<NextState<AppState>>,
-    mut exit: EventWriter<AppExit>,
+    #[cfg(not(target_arch = "wasm32"))] mut exit: EventWriter<bevy::app::AppExit>,
 ) {
     egui::SidePanel::left("Paused")
         .default_width(200.0)
@@ -26,9 +26,9 @@ fn pause_menu(
                 app_state.set(AppState::InGame);
             };
 
-            #[cfg(not(target_arch = "wasm"))]
+            #[cfg(not(target_arch = "wasm32"))]
             if ui.button("Quit").clicked() {
-                exit.send(AppExit);
+                exit.send(bevy::app::AppExit);
             }
         });
 }
