@@ -63,13 +63,14 @@ jobs:
 
     - name: Publish
       run: |
+        pushd khanage.github.io/games
+        
         if [[ $(git diff --exit-code) ]]; then
           COMMIT_MSG="${1:-Pushing changes}"
 
-          pushd khanage.github.io/games
 
           git commit -am "$COMMIT_MSG"
           git push
 
-          popd
         fi
+        popd
