@@ -34,7 +34,7 @@ const MISSILE_FORWARD_SPAWN_SCALAR: f32 = 7.5;
 
 const WEAPON_TIMER: u64 = 800;
 
-pub const STARTING_HEALTH: u32 = 3;
+pub const STARTING_HEALTH: u32 = 5;
 
 #[derive(Component, Debug, Reflect, Resource)]
 pub struct Spaceship;
