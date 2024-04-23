@@ -49,7 +49,6 @@ impl Plugin for AppPlugin {
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             prevent_default_event_handling: false,
-                            canvas: Some("#notpong-canvas".into()),
                             ..default()
                         }),
                         ..default()
