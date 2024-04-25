@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+
+<body style="margin: 0px;">
+  <h1>Really not pong</h1>
+  <canvas id="pong-canvas" width="1280" height="720"></canvas>
+  <script type="module">
+    import init from './pong.js'
+
+    init().catch((error) => {
+      if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+        throw error;
+      }
+    });
+  </script>
+</body>
+
+</html>

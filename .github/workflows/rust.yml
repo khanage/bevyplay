@@ -61,6 +61,8 @@ jobs:
           --out-name "pong" \
           ./target/wasm32-unknown-unknown/release/pong.wasm
 
+        cp assets/pong.html khanage.github.io/games/pong.html
+
     - name: Publish
       run: |
         pushd khanage.github.io/games
