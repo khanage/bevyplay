@@ -13,6 +13,7 @@ mod end_game;
 mod movement;
 mod pausemenu;
 mod schedule;
+mod score;
 mod spaceship;
 mod ui;
 
@@ -32,7 +33,8 @@ fn main() {
         .add_plugins(schedule::SchedulePlugin)
         .add_plugins(ui::UiPlugin)
         .add_plugins(end_game::EndGamePlugin)
-        .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
+        .add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin)
+        .add_plugins(score::ScorePlugin);
 
     if cfg!(feature = "diagnostics") {
         application.add_plugins(debug::DebugPlugin);

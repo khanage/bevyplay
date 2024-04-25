@@ -4,6 +4,7 @@ use crate::{
     application::AppState,
     asteroid::Asteroid,
     schedule::InGameSet,
+    score::Score,
     spaceship::{
         health::Health,
         shield::{ShieldDisplay, SpaceshipShield},
@@ -107,6 +108,7 @@ fn handle_asteroid_collision(
     mut commands: Commands,
     query: Query<(Entity, &Collider), With<Asteroid>>,
     missiles: Query<Entity, With<Missile>>,
+    mut score: ResMut<Score>,
 ) {
     for (asteroid_entity, asteroid_collider) in query.iter() {
         for &colliding_entity in asteroid_collider.colliding_entities.iter() {
@@ -116,6 +118,8 @@ fn handle_asteroid_collision(
 
             commands.entity(missile_entity).despawn_recursive();
             commands.entity(asteroid_entity).despawn_recursive();
+
+            score.score(1);
         }
     }
 }
