@@ -22,12 +22,12 @@ fn pause_menu(
         .show(contexts.ctx_mut(), |ui| {
             ui.allocate_space(egui::Vec2::new(1.0, 300.0));
             ui.label("Currently paused");
-            if ui.button("Unpause").clicked() {
+            if ui.button("[U]npause").clicked() {
                 app_state.set(AppState::InGame);
             };
 
             #[cfg(not(target_arch = "wasm32"))]
-            if ui.button("Quit").clicked() {
+            if ui.button("[Q]uit").clicked() {
                 exit.send(bevy::app::AppExit);
             }
         });
@@ -36,9 +36,15 @@ fn pause_menu(
 fn unpause_game(
     mut app_state: ResMut<NextState<AppState>>,
     keyboad_input: Res<ButtonInput<KeyCode>>,
+    #[cfg(not(target_arch = "wasm32"))] mut exit: EventWriter<bevy::app::AppExit>,
 ) {
-    if keyboad_input.just_pressed(KeyCode::Escape) {
+    if keyboad_input.just_pressed(KeyCode::Escape) || keyboad_input.just_pressed(KeyCode::KeyU) {
         app_state.set(AppState::InGame);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    if keyboad_input.just_pressed(KeyCode::KeyQ) {
+        exit.send(bevy::app::AppExit);
     }
 }
 

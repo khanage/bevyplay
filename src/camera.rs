@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
 
-const CAMERA_DISTANCE: f32 = 80.;
+const CAMERA_DISTANCE: f32 = 120.;
 
 pub struct CameraPlugin;
 
@@ -18,18 +18,18 @@ fn spawn_camera(mut commands: Commands) {
         ..default()
     });
     commands.spawn(PointLightBundle {
-            // transform: Transform::from_xyz(5.0, 8.0, 2.0),
-            transform: Transform::from_xyz(1.0, -1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Z),
-            point_light: PointLight {
-                intensity: 100_000.0,
-                color: Color::RED,
-                shadows_enabled: true,
-                ..default()
-            },
+        // transform: Transform::from_xyz(5.0, 8.0, 2.0),
+        transform: Transform::from_xyz(1.0, -1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Z),
+        point_light: PointLight {
+            intensity: 100_000.0,
+            color: Color::RED,
+            shadows_enabled: true,
             ..default()
-        });
+        },
+        ..default()
+    });
 
-            commands.spawn(DirectionalLightBundle {
+    commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: light_consts::lux::OVERCAST_DAY,
             shadows_enabled: true,
@@ -51,5 +51,4 @@ fn spawn_camera(mut commands: Commands) {
         .into(),
         ..default()
     });
-
 }

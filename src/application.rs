@@ -28,15 +28,30 @@ fn main_menu(mut contexts: EguiContexts, mut app_state: ResMut<NextState<AppStat
                 ui.label("Testing that deployment works");
             });
 
-            if ui.button("New game").clicked() {
+            if ui.button("[N]ew game").clicked() {
                 app_state.set(AppState::InGame);
             }
 
             #[cfg(not(target_arch = "wasm32"))]
-            if ui.button("Quit").clicked() {
+            if ui.button("[Q]uit").clicked() {
                 app_state.set(AppState::EndGame);
             }
         });
+}
+
+fn main_menu_keys(
+    mut app_state: ResMut<NextState<AppState>>,
+    keyboad_input: Res<ButtonInput<KeyCode>>,
+    #[cfg(not(target_arch = "wasm32"))] mut exit: EventWriter<bevy::app::AppExit>,
+) {
+    if keyboad_input.just_pressed(KeyCode::KeyN) {
+        app_state.set(AppState::InGame);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    if keyboad_input.just_pressed(KeyCode::KeyQ) {
+        exit.send(bevy::app::AppExit);
+    }
 }
 
 pub struct AppPlugin;
@@ -69,7 +84,7 @@ impl Plugin for AppPlugin {
             })
             .add_systems(
                 Update,
-                main_menu
+                (main_menu, main_menu_keys)
                     .in_set(InGameSet::EntityUpdates)
                     .run_if(in_state(AppState::MainMenu)),
             )

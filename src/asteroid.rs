@@ -63,8 +63,6 @@ fn spawn_asteroid(
             rng.gen_range(SPAWN_RANGE_Y),
         );
 
-        info!("Checking for spawn location {potential_spawn_point:#?}");
-
         let distance = spaceship_transform
             .translation()
             .distance(potential_spawn_point);
@@ -72,8 +70,6 @@ fn spawn_asteroid(
         if distance > spaceship_collider.radius + (ASTEROID_RADIUS * 2.) {
             break potential_spawn_point;
         }
-
-        info!("Rejecting spawn location");
     };
 
     let mut random_unit_vector =
