@@ -48,6 +48,7 @@ impl Plugin for AppPlugin {
                 DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
+                            #[cfg(target_arch = "wasm32")]
                             canvas: Some("#pong-canvas".into()),
                             prevent_default_event_handling: false,
                             ..default()

@@ -9,6 +9,7 @@ use crate::{
     end_game::DespawnAtEndgame,
     movement::{Acceleration, MovingObjectBundle, Velocity},
     schedule::InGameSet,
+    spaceship::Spaceship,
 };
 
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
@@ -35,22 +36,45 @@ fn spawn_asteroid_on_interval(
     mut spawn_timer: ResMut<SpawnTimer>,
     time: Res<Time>,
     assets: Res<SceneAssets>,
+    spaceship: Query<(&GlobalTransform, &Collider), With<Spaceship>>,
 ) {
     spawn_timer.timer.tick(time.delta());
 
     if spawn_timer.timer.just_finished() {
-        spawn_asteroid(&mut commands, &assets);
+        let Ok(spaceship) = spaceship.get_single() else {
+            error!("Didn't find a spaceship");
+            return;
+        };
+        spawn_asteroid(&mut commands, &assets, spaceship);
     }
 }
 
-fn spawn_asteroid(commands: &mut Commands, assets: &Res<SceneAssets>) {
+fn spawn_asteroid(
+    commands: &mut Commands,
+    assets: &Res<SceneAssets>,
+    (spaceship_transform, spaceship_collider): (&GlobalTransform, &Collider),
+) {
     let mut rng = rand::thread_rng();
 
-    let translation = Vec3::new(
-        rng.gen_range(SPAWN_RANGE_X),
-        0.,
-        rng.gen_range(SPAWN_RANGE_Y),
-    );
+    let translation = loop {
+        let potential_spawn_point = Vec3::new(
+            rng.gen_range(SPAWN_RANGE_X),
+            0.,
+            rng.gen_range(SPAWN_RANGE_Y),
+        );
+
+        info!("Checking for spawn location {potential_spawn_point:#?}");
+
+        let distance = spaceship_transform
+            .translation()
+            .distance(potential_spawn_point);
+
+        if distance > spaceship_collider.radius + (ASTEROID_RADIUS * 2.) {
+            break potential_spawn_point;
+        }
+
+        info!("Rejecting spawn location");
+    };
 
     let mut random_unit_vector =
         || Vec3::new(rng.gen_range(-1.0..1.0), 0., rng.gen_range(-1.0..1.0)).normalize_or_zero();
@@ -74,9 +98,18 @@ fn spawn_asteroid(commands: &mut Commands, assets: &Res<SceneAssets>) {
     ));
 }
 
-fn spawn_initial_asteroids(mut commands: Commands, assets: Res<SceneAssets>) {
+fn spawn_initial_asteroids(
+    mut commands: Commands,
+    assets: Res<SceneAssets>,
+    spaceship_query: Query<(&GlobalTransform, &Collider), With<Spaceship>>,
+) {
+    let Ok(spaceship) = spaceship_query.get_single() else {
+        error!("Didn't find a spaceship");
+        return;
+    };
+
     for _ in 0..5 {
-        spawn_asteroid(&mut commands, &assets);
+        spawn_asteroid(&mut commands, &assets, spaceship);
     }
 }
 
