@@ -21,11 +21,10 @@ use bevy_health_bar3d::{
     plugin::HealthBarPlugin,
 };
 
-const STARTING_TRANSLATION: Vec3 = Vec3::new(0., 0., -20.);
+const STARTING_TRANSLATION: Vec3 = Vec3::new(0., 0., 0.);
 
 const SPACESHIP_SPEED: f32 = 25.0;
 const SPACESHIP_ROTATION: f32 = 2.5;
-const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_RADIUS: f32 = 5.0;
 
 const MISSILE_RADIUS: f32 = 1.0;
@@ -57,12 +56,11 @@ fn spaceship_movement_controls(
     };
 
     let mut rotation = 0.0;
-    let mut roll = 0.0;
     let mut movement = 0.0;
 
-    if keyboard_input.pressed(KeyCode::KeyS) {
+    if keyboard_input.just_pressed(KeyCode::KeyS) {
         movement = -SPACESHIP_SPEED;
-    } else if keyboard_input.pressed(KeyCode::KeyW) {
+    } else if keyboard_input.just_pressed(KeyCode::KeyW) {
         movement = SPACESHIP_SPEED;
     }
 
@@ -72,16 +70,9 @@ fn spaceship_movement_controls(
         rotation = SPACESHIP_ROTATION * time.delta_seconds();
     }
 
-    if keyboard_input.pressed(KeyCode::KeyQ) {
-        roll = -SPACESHIP_ROLL_SPEED * time.delta_seconds();
-    } else if keyboard_input.pressed(KeyCode::KeyE) {
-        roll = SPACESHIP_ROLL_SPEED * time.delta_seconds();
-    }
-
     transform.rotate_y(rotation);
-    transform.rotate_z(roll);
 
-    velocity.value = -transform.forward() * movement;
+    velocity.value += -transform.forward() * movement;
 }
 
 fn spaceship_weapon_controls(
@@ -97,8 +88,6 @@ fn spaceship_weapon_controls(
     let Ok((spaceship_entity, spaceship_transform)) = query.get_single() else {
         return;
     };
-
-    info!("Spawning weapon");
 
     commands
         .get_entity(spaceship_entity)

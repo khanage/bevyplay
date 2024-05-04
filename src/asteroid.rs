@@ -17,7 +17,7 @@ const SPAWN_RANGE_Y: Range<f32> = 0.0..25.0;
 
 const SPAWN_TIMER: f32 = 1.0;
 
-const VELOCITY_SCALAR: f32 = 5.0;
+const VELOCITY_SCALAR: f32 = 1.0;
 const ACCELERATION_SCALAR: f32 = 1.0;
 
 const ROTATION_SPEED: f32 = 1.5;
