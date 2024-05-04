@@ -116,6 +116,7 @@ fn spaceship_weapon_controls(
             ..default()
         },
         DespawnAtEndgame,
+        Name::new("Missile"),
     ));
 }
 
@@ -133,7 +134,7 @@ fn weapon_timer(
     }
 }
 
-fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
+pub fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
     commands.spawn((
         Spaceship,
         MovingObjectBundle {
@@ -154,6 +155,7 @@ fn spawn_spaceship(mut commands: Commands, assets: Res<SceneAssets>) {
         },
         Health::default(),
         DespawnAtEndgame,
+        Name::new("Spaceship"),
     ));
 }
 
@@ -173,13 +175,6 @@ impl Plugin for SpaceshipPlugin {
             ColorScheme::<Health>::new()
                 .foreground_color(ForegroundColor::Static(Color::GREEN))
                 .background_color(Color::RED),
-        )
-        .add_systems(
-            OnTransition {
-                from: AppState::MainMenu,
-                to: AppState::InGame,
-            },
-            spawn_spaceship,
         )
         .add_systems(
             Update,

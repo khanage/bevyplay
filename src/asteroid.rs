@@ -97,16 +97,16 @@ fn spawn_asteroid(
         },
         Asteroid,
         DespawnAtEndgame,
+        Name::new("asteroid"),
     ));
 }
 
-fn spawn_initial_asteroids(
+pub fn spawn_initial_asteroids(
     mut commands: Commands,
     assets: Res<SceneAssets>,
     spaceship_query: Query<(&GlobalTransform, &Collider), With<Spaceship>>,
 ) {
     let Ok(spaceship) = spaceship_query.get_single() else {
-        error!("Didn't find a spaceship");
         return;
     };
 
@@ -129,13 +129,6 @@ impl Plugin for AsteroidPlugin {
             timer: Timer::new(Duration::from_secs_f32(SPAWN_TIMER), TimerMode::Repeating),
         })
         .register_type::<Asteroid>()
-        .add_systems(
-            OnTransition {
-                from: AppState::MainMenu,
-                to: AppState::InGame,
-            },
-            spawn_initial_asteroids,
-        )
         .add_systems(
             Update,
             (spawn_asteroid_on_interval, rotate_asteroids)

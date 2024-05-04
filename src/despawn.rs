@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::{
     application::AppState,
     asteroid::Asteroid,
+    camera::CameraBounds,
     schedule::InGameSet,
     spaceship::{AlreadyFired, Missile, Spaceship},
 };
@@ -12,10 +13,17 @@ const DESPAWN_DISTANCE: f32 = 50.0;
 fn despawn_far_away_asteroids(
     mut commands: Commands,
     query: Query<(Entity, &GlobalTransform), With<Asteroid>>,
+    camera_bounds: Res<CameraBounds>,
 ) {
     for (entity, transform) in query.iter() {
-        if transform.translation().distance(Vec3::ZERO) > DESPAWN_DISTANCE {
-            info!("Despawning asteroid");
+        if !camera_bounds
+            .window_bounds
+            .contains(transform.translation().truncate())
+        {
+            info!(
+                "Despawning asteroid at {:#?}",
+                transform.translation().truncate()
+            );
             commands.entity(entity).despawn_recursive();
         }
     }

@@ -4,7 +4,9 @@ use bevy_inspector_egui::{
     egui,
 };
 
+use crate::asteroid::spawn_initial_asteroids;
 use crate::schedule::InGameSet;
+use crate::spaceship::spawn_spaceship;
 
 #[derive(States, Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -87,6 +89,13 @@ impl Plugin for AppPlugin {
                 (main_menu, main_menu_keys)
                     .in_set(InGameSet::EntityUpdates)
                     .run_if(in_state(AppState::MainMenu)),
+            )
+            .add_systems(
+                OnTransition {
+                    from: AppState::MainMenu,
+                    to: AppState::InGame,
+                },
+                (spawn_spaceship, spawn_initial_asteroids),
             )
             .init_state::<AppState>();
     }

@@ -4,6 +4,11 @@ use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
 
 const CAMERA_DISTANCE: f32 = 120.;
 
+#[derive(Component, Debug, Reflect, Resource)]
+pub struct CameraBounds {
+    pub window_bounds: Rect,
+}
+
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -12,11 +17,30 @@ impl Plugin for CameraPlugin {
     }
 }
 
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn(Camera3dBundle {
+fn spawn_camera(mut commands: Commands, window: Query<&Window>) {
+    let Ok(window) = window.get_single() else {
+        panic!("Couldn't find a window");
+    };
+
+    let camera = Camera3dBundle {
         transform: Transform::from_xyz(0.0, CAMERA_DISTANCE, 0.).looking_at(Vec3::ZERO, Vec3::Z),
         ..default()
+    };
+
+    let center = camera.transform.translation.truncate();
+    let half_width = (window.width() / 2.0) * camera.transform.scale.x;
+    let half_height = (window.height() / 2.0) * camera.transform.scale.y;
+    let left = center.x - half_width;
+    let bottom = center.y - half_height;
+    let right = center.x + half_width;
+    let top = center.y + half_height;
+
+    commands.spawn(camera);
+
+    commands.insert_resource(CameraBounds {
+        window_bounds: Rect::new(left, bottom, right, top),
     });
+
     commands.spawn(PointLightBundle {
         // transform: Transform::from_xyz(5.0, 8.0, 2.0),
         transform: Transform::from_xyz(1.0, -1.0, 0.0).looking_at(Vec3::ZERO, Vec3::Z),
