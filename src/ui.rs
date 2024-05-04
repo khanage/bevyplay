@@ -17,9 +17,6 @@ impl Plugin for UiPlugin {
     }
 }
 
-#[derive(Debug, Component)]
-pub struct Ui;
-
 fn update_ui(mut contexts: EguiContexts, health: Query<&Health>, score: Res<Score>) {
     let Ok(health) = health.get_single() else {
         return;
