@@ -25,6 +25,6 @@ diagnostics = []
 rand = "0.8.5"
 bevy = { version = "=0.13.1", features = [] }
 bevy_pbr = { version = "=0.13.1", features = [] }
-bevy-inspector-egui = "0.24.0"
-bevy_asset_loader = "0.20.0"
+bevy-inspector-egui = { version = "0.24.0", default_features = true }
+bevy_asset_loader = "0.20.1"
 bevy_health_bar3d = { git = "https://github.com/khanage/bevy_health_bar3d", branch = "main" }
