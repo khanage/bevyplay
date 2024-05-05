@@ -15,11 +15,10 @@ fn despawn_far_away_asteroids(
     query: Query<(Entity, &GlobalTransform), With<Asteroid>>,
     camera_bounds: Res<CameraBounds>,
 ) {
+    let bounds = camera_bounds.window_bounds;
+
     for (entity, transform) in query.iter() {
-        if !camera_bounds
-            .window_bounds
-            .contains(transform.translation().truncate())
-        {
+        if !bounds.contains(transform.translation().truncate()) {
             info!(
                 "Despawning asteroid at {:#?}",
                 transform.translation().truncate()

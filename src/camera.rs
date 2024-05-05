@@ -18,22 +18,15 @@ impl Plugin for CameraPlugin {
 }
 
 fn spawn_camera(mut commands: Commands, window: Query<&Window>) {
-    let Ok(window) = window.get_single() else {
-        panic!("Couldn't find a window");
-    };
-
     let camera = Camera3dBundle {
         transform: Transform::from_xyz(0.0, CAMERA_DISTANCE, 0.).looking_at(Vec3::ZERO, Vec3::Z),
         ..default()
     };
 
-    let center = camera.transform.translation.truncate();
-    let half_width = (window.width() / 2.0) * camera.transform.scale.x;
-    let half_height = (window.height() / 2.0) * camera.transform.scale.y;
-    let left = center.x - half_width;
-    let bottom = center.y - half_height;
-    let right = center.x + half_width;
-    let top = center.y + half_height;
+    let left = -50.0;
+    let bottom = -50.0;
+    let right = 50.0;
+    let top = 50.0;
 
     commands.spawn(camera);
 

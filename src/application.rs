@@ -95,7 +95,7 @@ impl Plugin for AppPlugin {
                     from: AppState::MainMenu,
                     to: AppState::InGame,
                 },
-                (spawn_spaceship, spawn_initial_asteroids),
+                (spawn_spaceship, spawn_initial_asteroids).chain(),
             )
             .init_state::<AppState>();
     }

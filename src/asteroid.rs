@@ -107,6 +107,7 @@ pub fn spawn_initial_asteroids(
     spaceship_query: Query<(&GlobalTransform, &Collider), With<Spaceship>>,
 ) {
     let Ok(spaceship) = spaceship_query.get_single() else {
+        error!("Unable to spawn initial asteroids");
         return;
     };
 
