@@ -1,5 +1,5 @@
-use bevy::prelude::*;
-use rand::Rng;
+use bevy::{core::Zeroable, prelude::*};
+use rand::{distributions::Distribution, Rng};
 use std::{ops::Range, time::Duration};
 
 use crate::{
@@ -12,13 +12,12 @@ use crate::{
     spaceship::Spaceship,
 };
 
-const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
-const SPAWN_RANGE_Y: Range<f32> = 0.0..25.0;
+const SPAWN_RANGE_X: Range<f32> = -50.0..50.0;
+const SPAWN_RANGE_Y: Range<f32> = -50.0..50.0;
 
 const SPAWN_TIMER: f32 = 1.0;
 
-const VELOCITY_SCALAR: f32 = 1.0;
-const ACCELERATION_SCALAR: f32 = 1.0;
+const VELOCITY_SCALAR: f32 = 5.0;
 
 const ROTATION_SPEED: f32 = 1.5;
 const ASTEROID_RADIUS: f32 = 1.0;
@@ -55,6 +54,7 @@ fn spawn_asteroid(
     (spaceship_transform, spaceship_collider): (&GlobalTransform, &Collider),
 ) {
     let mut rng = rand::thread_rng();
+    let distribution = rand::distributions::Uniform::new_inclusive(-1.0, 1.0);
 
     let translation = loop {
         let potential_spawn_point = Vec3::new(
@@ -67,21 +67,27 @@ fn spawn_asteroid(
             .translation()
             .distance(potential_spawn_point);
 
-        if distance > spaceship_collider.radius + (ASTEROID_RADIUS * 2.) {
+        if distance > spaceship_collider.radius + (ASTEROID_RADIUS * 3.) {
             break potential_spawn_point;
         }
     };
 
-    let mut random_unit_vector =
-        || Vec3::new(rng.gen_range(-1.0..1.0), 0., rng.gen_range(-1.0..1.0)).normalize_or_zero();
+    let mut random_unit_vector = || {
+        Vec3::new(
+            distribution.sample(&mut rng),
+            0.,
+            distribution.sample(&mut rng),
+        )
+    };
 
     let velocity = random_unit_vector() * VELOCITY_SCALAR;
-    let acceleration = random_unit_vector() * ACCELERATION_SCALAR;
+
+    info!("Spawning asteroid velocity: {velocity:?}");
 
     commands.spawn((
         MovingObjectBundle {
             velocity: Velocity::new(velocity),
-            acceleration: Acceleration::new(acceleration),
+            acceleration: Acceleration::new(Vec3::zeroed()),
             model: SceneBundle {
                 scene: assets.asteroids.clone(),
                 transform: Transform::from_translation(translation),
